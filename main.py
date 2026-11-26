@@ -15,19 +15,28 @@ ENTRY_TEXT = (
 )
 
 
-def check_gate(text):
-    """Return True only if the text passes the competition gate."""
-    if not text or not text.strip():
+def validate(text):
+    """Check the text against every part of the competition gate."""
+    if not isinstance(text, str):
         return False
-    encoded = text.encode("utf-8")
-    if len(encoded) < 1 or len(encoded) > 200:
+    if not text.strip():
+        return False
+    size = len(text.encode("utf-8"))
+    if size < 1 or size > 200:
+        return False
+    if text.count(".") + text.count("!") + text.count("?") != 1:
         return False
     return True
 
 
+def check_gate(text):
+    """Gate entry point: delegate the real checks to validate()."""
+    return validate(text)
+
+
 def main():
     if not check_gate(ENTRY_TEXT):
-        print("gate failed: entry must be 1 to 200 UTF-8 characters", file=sys.stderr)
+        print("gate failed: entry must be one sentence of 1 to 200 UTF-8 characters", file=sys.stderr)
         return 1
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
